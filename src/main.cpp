@@ -26,5 +26,5 @@ void loop()
                 static_cast<unsigned long>(millis()),
                 ESP.getFreeHeap());
 
-  delay(1000);
+  delay(2000);
 }
