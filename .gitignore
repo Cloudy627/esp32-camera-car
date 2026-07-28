@@ -3,3 +3,9 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+# macOS
+.DS_Store
+
+# 私密配置
+.env
+include/secrets.h
