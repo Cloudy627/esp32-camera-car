@@ -1,0 +1,73 @@
+# ESP32-CAM Car Project Guidance
+
+## Project purpose
+
+- This is a learning and portfolio project for a second-year mechanical-engineering student.
+- The goals are to learn embedded development, electronics debugging, Git, and GitHub while building a four-wheel ESP32-CAM car.
+- Prefer work that produces clear engineering evidence: reproducible tests, wiring notes, measured results, meaningful commits, and reviewable pull requests.
+
+## How to work with the user
+
+- Communicate in concise, beginner-friendly Chinese unless the user requests another language.
+- For physical wiring and hardware tests, give exactly one action at a time.
+- Explain briefly why the current action is needed and state its success criterion.
+- Wait for the user's observation or photo before giving the next physical action.
+- Do not infer terminal functions from module appearance. Read the actual silkscreen or request a clear photo first.
+- Distinguish verified facts from estimates and hypotheses. Never report a hardware test as passed until the user confirms the observed result.
+
+## Git and GitHub workflow
+
+- Protect `main`: do not commit or push feature work directly to it.
+- Create one branch per coherent task, not one branch per commit.
+- Use descriptive engineering prefixes:
+  - `feature/` for new functionality.
+  - `test/` for planned verification work.
+  - `fix/` for defect corrections.
+  - `docs/` for documentation-only work.
+  - `chore/` for configuration and maintenance.
+- Do not use `codex/` or `agent/` branch prefixes in this repository.
+- A task branch may contain several small, related commits. Use concise Conventional Commit-style subjects such as `feat:`, `test:`, `fix:`, `docs:`, or `chore:`.
+- Stage only files that belong to the task. Preserve unrelated user changes.
+- Before committing firmware changes, run `pio run` (or locate the active PlatformIO executable if it is not on `PATH`) and report the result.
+- Hardware validation and compilation validation are different; record both when applicable.
+- For every completed or explicitly requested snapshot, commit the intended files, push the branch to GitHub, and open or update a draft pull request.
+- Before each commit or push, tell the user what will be saved so the Git workflow remains part of the learning process.
+- Do not merge a pull request or delete a branch without telling the user. After a task is merged, normally delete its completed task branch.
+- Never commit credentials, personal access tokens, private Wi-Fi credentials, or other secrets.
+
+## Firmware and milestone preservation
+
+- Keep verified milestones recoverable through Git. Do not overwrite a working milestone without first preserving it in a commit and remote branch.
+- Prefer a separate minimal test mode or task branch when a hardware test temporarily needs different firmware.
+- Day 1 is verified: minimum system, PlatformIO build/upload, serial output, and heartbeat.
+- Day 2 is verified on hardware: OV3660 camera, PSRAM, ESP32 access point, and live video at `http://192.168.4.1/`.
+- The verified Day 2 camera implementation lives in commit `2a17b08` on `feature/day2-camera-stream` until its pull request is merged.
+- Day 3 is limited to a single unloaded motor test. Do not claim Day 3 complete until the motor direction/control test is observed successfully.
+
+## Confirmed hardware
+
+- ESP32-CAM: ESP-32S module with AI Thinker-compatible camera pin layout.
+- Download board: ESP32-CAM-MB; the serial device is commonly `/dev/cu.usbserial-10`, but verify it before upload.
+- Camera sensor: OV3660.
+- Motor drivers: two TC1508A dual-channel boards for the car and one spare; do not treat them as MX1508 boards.
+- Motors: four yellow TT motors. Measured winding resistances are M1 8.0 ohm, M2 7.9 ohm, M3 7.1 ohm, and M4 7.3 ohm.
+- Planned side pairing is M1 with M3 and M2 with M4.
+- Motor supply: four series NiMH AA cells, nominally 4.8 V and measured around 5.1 V.
+- ESP32-CAM supply: separate 5 V power from the ESP32-CAM-MB or a power bank.
+
+## Hardware safety
+
+- Before wiring or changing any connection, disconnect USB power and the motor battery supply.
+- Keep the motor shaft or wheel unloaded during the single-motor test.
+- Motor current must never pass through the ESP32-CAM board.
+- Connect ESP32 GND and TC1508A GND when control signals are used, but never connect the positive terminals of the two independent supplies together.
+- Use one TC1508A board and motor M1 only for the first motor test. Do not connect the full vehicle yet.
+- Do not measure stall current during the initial test, and never allow a motor to remain stalled.
+- The estimated cold stall current for two parallel motors on one side is roughly 1.4-1.6 A; treat this only as an estimate until measured safely later.
+- Bare TC1508A through-holes require properly soldered headers or terminals for reliable use. Do not rely on loose pins or thin Dupont leads for motor current.
+
+## Maintaining this file
+
+- Update this file when the user establishes a durable workflow preference, confirms a hardware fact, changes a safety boundary, or completes a verified milestone.
+- Do not add transient conversation details, unverified guesses, secrets, or noisy command output.
+- Keep changes concise and include them in the appropriate task branch and pull request so the history explains why the guidance changed.
