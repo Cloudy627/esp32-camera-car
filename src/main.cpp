@@ -2,42 +2,80 @@
 
 namespace
 {
-// AI Thinker ESP32-CAM pins that are not used by the camera in this test.
-constexpr uint8_t kMotorIn1Pin = 13;
-constexpr uint8_t kMotorIn2Pin = 14;
+constexpr uint8_t kLeftIn1Pin = 13;
+constexpr uint8_t kLeftIn2Pin = 14;
+constexpr uint8_t kRightIn1Pin = 12;
+constexpr uint8_t kRightIn2Pin = 15;
 constexpr uint8_t kStatusLedPin = 4;
-constexpr uint32_t kRunLimitMs = 2000;
+
+constexpr uint32_t kRunLimitMs = 1500;
+constexpr uint32_t kPauseMs = 2000;
 constexpr uint32_t kStandaloneWaitMs = 25000;
 
-bool motorRunning = false;
-uint32_t motorStartedAt = 0;
-
-void stopMotor()
+enum class Direction : int8_t
 {
-  digitalWrite(kMotorIn1Pin, LOW);
-  digitalWrite(kMotorIn2Pin, LOW);
-  motorRunning = false;
-  Serial.println("Motor stopped.");
+  reverse = -1,
+  stop = 0,
+  forward = 1,
+};
+
+bool driveRunning = false;
+uint32_t driveStartedAt = 0;
+
+void setSide(uint8_t in1Pin, uint8_t in2Pin, Direction direction)
+{
+  switch (direction)
+  {
+  case Direction::forward:
+    digitalWrite(in1Pin, HIGH);
+    digitalWrite(in2Pin, LOW);
+    break;
+  case Direction::reverse:
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, HIGH);
+    break;
+  case Direction::stop:
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, LOW);
+    break;
+  }
 }
 
-void runMotor(bool forward)
+void stopDrive()
 {
-  digitalWrite(kMotorIn1Pin, forward ? HIGH : LOW);
-  digitalWrite(kMotorIn2Pin, forward ? LOW : HIGH);
-  motorStartedAt = millis();
-  motorRunning = true;
+  setSide(kLeftIn1Pin, kLeftIn2Pin, Direction::stop);
+  setSide(kRightIn1Pin, kRightIn2Pin, Direction::stop);
+  driveRunning = false;
+  Serial.println("Drive stopped.");
+}
 
-  Serial.printf("Motor command: %s (automatic stop in %lu ms)\n",
-                forward ? "forward" : "reverse",
+void runDrive(Direction left, Direction right, const char *label)
+{
+  setSide(kLeftIn1Pin, kLeftIn2Pin, left);
+  setSide(kRightIn1Pin, kRightIn2Pin, right);
+  driveStartedAt = millis();
+  driveRunning = true;
+  Serial.printf("Drive command: %s (automatic stop in %lu ms)\n",
+                label,
                 static_cast<unsigned long>(kRunLimitMs));
+}
+
+void runTestStep(Direction left, Direction right, const char *label)
+{
+  runDrive(left, right, label);
+  delay(kRunLimitMs);
+  stopDrive();
+  delay(kPauseMs);
 }
 
 void printHelp()
 {
   Serial.println();
-  Serial.println("Commands:");
-  Serial.println("  f = forward for 2 seconds");
-  Serial.println("  r = reverse for 2 seconds");
+  Serial.println("Commands (each movement stops automatically):");
+  Serial.println("  w = both sides direction A");
+  Serial.println("  x = both sides direction B");
+  Serial.println("  a = pivot combination A");
+  Serial.println("  d = pivot combination B");
   Serial.println("  s = stop immediately");
   Serial.println("  h = show this help");
 }
@@ -46,6 +84,7 @@ void runStandaloneTest()
 {
   Serial.println();
   Serial.println("Standalone test starts in 30 seconds.");
+  Serial.println("Keep motor power off until the ESP32 has started.");
   Serial.println("The flash LED will blink during the final 5 seconds.");
   delay(kStandaloneWaitMs);
 
@@ -57,47 +96,52 @@ void runStandaloneTest()
     delay(800);
   }
 
-  runMotor(true);
-  delay(kRunLimitMs);
-  stopMotor();
+  runTestStep(Direction::forward, Direction::stop, "left side A");
+  runTestStep(Direction::reverse, Direction::stop, "left side B");
+  runTestStep(Direction::stop, Direction::forward, "right side A");
+  runTestStep(Direction::stop, Direction::reverse, "right side B");
+  runTestStep(Direction::forward, Direction::forward, "both sides A");
+  runTestStep(Direction::reverse, Direction::reverse, "both sides B");
+  runTestStep(Direction::reverse, Direction::forward, "pivot A");
+  runTestStep(Direction::forward, Direction::reverse, "pivot B");
 
-  delay(3000);
-
-  runMotor(false);
-  delay(kRunLimitMs);
-  stopMotor();
-
-  Serial.println("Standalone test complete. Motor output remains disabled.");
+  stopDrive();
+  Serial.println("Standalone test complete. All motor outputs remain disabled.");
 }
 } // namespace
 
 void setup()
 {
-  // Load LOW into both GPIO output latches before enabling output mode.
-  digitalWrite(kMotorIn1Pin, LOW);
-  digitalWrite(kMotorIn2Pin, LOW);
+  // Preload LOW before enabling outputs so every driver input starts disabled.
+  digitalWrite(kLeftIn1Pin, LOW);
+  digitalWrite(kLeftIn2Pin, LOW);
+  digitalWrite(kRightIn1Pin, LOW);
+  digitalWrite(kRightIn2Pin, LOW);
   digitalWrite(kStatusLedPin, LOW);
-  pinMode(kMotorIn1Pin, OUTPUT);
-  pinMode(kMotorIn2Pin, OUTPUT);
+
+  pinMode(kLeftIn1Pin, OUTPUT);
+  pinMode(kLeftIn2Pin, OUTPUT);
+  pinMode(kRightIn1Pin, OUTPUT);
+  pinMode(kRightIn2Pin, OUTPUT);
   pinMode(kStatusLedPin, OUTPUT);
 
   Serial.begin(115200);
   delay(1500);
 
   Serial.println();
-  Serial.println("=== Day 3: TC1508A single motor test ===");
-  Serial.printf("IN1 control pin: GPIO %u\n", kMotorIn1Pin);
-  Serial.printf("IN2 control pin: GPIO %u\n", kMotorIn2Pin);
-  Serial.println("Motor output is disabled after every 2-second run.");
+  Serial.println("=== Part 4: four-motor drive test ===");
+  Serial.printf("Left driver: GPIO %u / GPIO %u\n", kLeftIn1Pin, kLeftIn2Pin);
+  Serial.printf("Right driver: GPIO %u / GPIO %u\n", kRightIn1Pin, kRightIn2Pin);
+  Serial.println("Every movement is limited to 1.5 seconds.");
   printHelp();
   runStandaloneTest();
 }
 
 void loop()
 {
-  if (motorRunning && millis() - motorStartedAt >= kRunLimitMs)
+  if (driveRunning && millis() - driveStartedAt >= kRunLimitMs)
   {
-    stopMotor();
+    stopDrive();
   }
 
   if (Serial.available() == 0)
@@ -110,31 +154,33 @@ void loop()
 
   switch (command)
   {
-  case 'f':
-  case 'F':
-    runMotor(true);
+  case 'w':
+  case 'W':
+    runDrive(Direction::forward, Direction::forward, "both sides A");
     break;
-
-  case 'r':
-  case 'R':
-    runMotor(false);
+  case 'x':
+  case 'X':
+    runDrive(Direction::reverse, Direction::reverse, "both sides B");
     break;
-
+  case 'a':
+  case 'A':
+    runDrive(Direction::reverse, Direction::forward, "pivot A");
+    break;
+  case 'd':
+  case 'D':
+    runDrive(Direction::forward, Direction::reverse, "pivot B");
+    break;
   case 's':
   case 'S':
-    stopMotor();
+    stopDrive();
     break;
-
   case 'h':
   case 'H':
     printHelp();
     break;
-
   case '\r':
   case '\n':
-  case ' ':
     break;
-
   default:
     Serial.printf("Unknown command: %c\n", command);
     printHelp();
