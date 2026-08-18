@@ -39,10 +39,13 @@
 
 - Keep verified milestones recoverable through Git. Do not overwrite a working milestone without first preserving it in a commit and remote branch.
 - Prefer a separate minimal test mode or task branch when a hardware test temporarily needs different firmware.
-- Day 1 is verified: minimum system, PlatformIO build/upload, serial output, and heartbeat.
-- Day 2 is verified on hardware: OV3660 camera, PSRAM, ESP32 access point, and live video at `http://192.168.4.1/`.
-- The verified Day 2 camera implementation lives in commit `2a17b08` on `feature/day2-camera-stream` until its pull request is merged.
-- Day 3 is limited to a single unloaded motor test. Do not claim Day 3 complete until the motor direction/control test is observed successfully.
+- Use numbered project parts instead of calling milestones “days”; keep actual calendar dates inside each test record.
+- Part 1 is verified: minimum system, PlatformIO build/upload, serial output, and heartbeat.
+- Part 2 is verified on hardware: OV3660 camera, PSRAM, ESP32 access point, and live video at `http://192.168.4.1/`.
+- The verified Part 2 camera implementation lives in commit `2a17b08` on `feature/day2-camera-stream` until its pull request is merged.
+- Part 3 is verified: one unloaded motor completed both directions and stopped as programmed.
+- Part 4 produced the four-motor automatic test firmware and preparation record, but did not complete four-motor hardware validation.
+- Part 5 completed the four-motor electrical assembly and unpowered checks. It did not include a powered motor test.
 
 ## Confirmed hardware
 
@@ -58,10 +61,11 @@
 ## Hardware safety
 
 - Before wiring or changing any connection, disconnect USB power and the motor battery supply.
-- Keep the motor shaft or wheel unloaded during the single-motor test.
+- Keep the wheels removed or all motor shafts unloaded during initial multi-motor tests.
 - Motor current must never pass through the ESP32-CAM board.
 - Connect ESP32 GND and TC1508A GND when control signals are used, but never connect the positive terminals of the two independent supplies together.
-- Use one TC1508A board and motor M1 only for the first motor test. Do not connect the full vehicle yet.
+- The breadboard and ordinary Dupont wires may carry only GPIO control signals and the logic ground reference, never motor current.
+- GPIO12 and GPIO15 are boot-strapping pins. Keep motor power off while ESP32-CAM starts; connect motor power only after startup, and do not restart ESP32-CAM while the motor drivers remain powered.
 - Do not measure stall current during the initial test, and never allow a motor to remain stalled.
 - The estimated cold stall current for two parallel motors on one side is roughly 1.4-1.6 A; treat this only as an estimate until measured safely later.
 - Bare TC1508A through-holes require properly soldered headers or terminals for reliable use. Do not rely on loose pins or thin Dupont leads for motor current.
