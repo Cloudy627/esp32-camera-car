@@ -46,7 +46,7 @@
 - Part 3 is verified: one unloaded motor completed both directions and stopped as programmed.
 - Part 4 produced the four-motor automatic test firmware and preparation record, but did not complete four-motor hardware validation.
 - Part 5 completed the four-motor electrical assembly and unpowered checks. It did not include a powered motor test.
-- Part 6 independently verified the replacement ESP32-CAM can compile, upload with hash verification, start with readable serial output, and execute the time-limited test firmware. It was not connected to the motor circuit; camera, PSRAM, and four-motor hardware validation remain incomplete.
+- Part 6 independently verified the replacement ESP32-CAM, then verified all four unloaded motors follow the time-limited automatic sequence and stop reliably. A temporary Dupont connection caused one no-response attempt and recovered after reseating, but the exact loose connection remains unidentified; camera and PSRAM were not tested on the replacement module.
 
 ## Confirmed hardware
 
