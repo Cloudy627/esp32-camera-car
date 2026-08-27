@@ -47,7 +47,7 @@
 - Part 4 produced the four-motor automatic test firmware and preparation record, but did not complete four-motor hardware validation.
 - Part 5 completed the four-motor electrical assembly and unpowered checks. It did not include a powered motor test.
 - Part 6 independently verified the replacement ESP32-CAM, then verified all four unloaded motors follow the time-limited automatic sequence and stop reliably. A temporary Dupont connection caused one no-response attempt and recovered after reseating, but the exact loose connection remains unidentified; camera and PSRAM were not tested on the replacement module.
-- Part 7 integrates the previously verified Part 2 camera stream with the Part 6 motor mapping, mobile hold-to-move controls, and automatic stop limits. The integrated firmware compiles successfully, but it has not yet been uploaded or validated on hardware.
+- Part 7 initial commit `75706f3` was compiled and uploaded by the user; the phone connected to the AP, the page and camera image appeared, and all four motors moved. The user observed laggy HTTP polling control, short travel under the 1.5 s limit, and one later video loss. A separate seller-firmware test with independent 5 V / 1 A power also worked, so the video loss remains unresolved rather than confirmed camera damage. The optimized WebSocket/5 s/reconnect candidate compiles successfully but has not been uploaded or validated on hardware.
 
 ## Confirmed hardware
 
