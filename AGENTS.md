@@ -9,6 +9,7 @@
 ## How to work with the user
 
 - Communicate in concise, beginner-friendly Chinese unless the user requests another language.
+- Before step-by-step troubleshooting, first present the overall objective, diagnostic plan, decision branches, risks, and completion criteria, then wait for the user's confirmation of the plan.
 - For physical wiring and hardware tests, give exactly one action at a time.
 - Explain briefly why the current action is needed and state its success criterion.
 - Wait for the user's observation or photo before giving the next physical action.
