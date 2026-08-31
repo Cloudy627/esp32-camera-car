@@ -2,13 +2,14 @@
 
 ## Project purpose
 
-- This is a learning and portfolio project for a second-year mechanical-engineering student.
+- This is a learning and portfolio project for a mechanical-engineering undergraduate approaching the third year.
 - The goals are to learn embedded development, electronics debugging, Git, and GitHub while building a four-wheel ESP32-CAM car.
 - Prefer work that produces clear engineering evidence: reproducible tests, wiring notes, measured results, meaningful commits, and reviewable pull requests.
 
 ## How to work with the user
 
 - Communicate in concise, beginner-friendly Chinese unless the user requests another language.
+- Before step-by-step troubleshooting, first present the overall objective, diagnostic plan, decision branches, risks, and completion criteria, then wait for the user's confirmation of the plan.
 - For physical wiring and hardware tests, give exactly one action at a time.
 - Explain briefly why the current action is needed and state its success criterion.
 - Wait for the user's observation or photo before giving the next physical action.
@@ -47,7 +48,8 @@
 - Part 4 produced the four-motor automatic test firmware and preparation record, but did not complete four-motor hardware validation.
 - Part 5 completed the four-motor electrical assembly and unpowered checks. It did not include a powered motor test.
 - Part 6 independently verified the replacement ESP32-CAM, then verified all four unloaded motors follow the time-limited automatic sequence and stop reliably. A temporary Dupont connection caused one no-response attempt and recovered after reseating, but the exact loose connection remains unidentified; camera and PSRAM were not tested on the replacement module.
-- Part 7 integrates the previously verified Part 2 camera stream with the Part 6 motor mapping, mobile hold-to-move controls, and automatic stop limits. The integrated firmware compiles successfully, but it has not yet been uploaded or validated on hardware.
+- Part 7 initial commit `75706f3` was compiled and uploaded by the user; the phone connected to the AP, the page and camera image appeared, and all four motors moved. The user observed laggy HTTP polling control, short travel under the 1.5 s limit, and one later video loss. A separate seller-firmware test with independent 5 V / 1 A power also worked, so the video loss was not treated as confirmed camera damage.
+- Part 7 optimized revision `90647f6` uses the WebSocket/5 s/reconnect firmware introduced in commit `4240cf4`. The user completed a 10-minute hardware acceptance test on 2026-08-29 with 11 repeated operations. The hotspot, page, video, four motion commands, release stop, disconnected-control stop, action-limit stop, and video recovery all behaved as expected. The user observed no resets, abnormal heating, burning smell, runaway motion, or connection fault. Treat this as verified first-stage prototype behavior within that test coverage, not as a long-term reliability result.
 
 ## Confirmed hardware
 
