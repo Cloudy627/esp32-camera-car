@@ -9,3 +9,6 @@
 # 私密配置
 .env
 include/secrets.h
+
+# 文档渲染与检查产生的临时文件
+tmp/
